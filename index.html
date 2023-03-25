@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>会計帳簿</title>
+    <style>
+      table th,
+      table td {
+        border-right: 1px solid;
+        border-bottom: 1px solid;
+      }
+      table caption {
+        border-bottom: 1px solid;
+      }
+    </style>
+  </head>
+  <body>
+    <div style="display: flex; align-items: baseline; justify-content: space-around">
+      <label>start: <input type="date" /></label>
+      <label>end:<input type="date" /></label>
+      <fieldset>
+        <legend>group by</legend>
+        <label><input type="checkbox" />年</label>
+        <label><input type="checkbox" />月</label>
+        <label><input type="checkbox" />日</label>
+      </fieldset>
+    </div>
+
+    <div style="display: flex; justify-content: space-around">
+      <table>
+        <caption>
+          単式
+        </caption>
+        <thead>
+          <tr>
+            <th>収入</th>
+            <th>支出</th>
+            <th>摘要</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td></td>
+            <td>120,000</td>
+            <td>パソコン購入</td>
+          </tr>
+        </tbody>
+      </table>
+      <table>
+        <caption>
+          複式
+        </caption>
+        <thead>
+          <tr>
+            <th colspan="2">借方</th>
+            <th colspan="2">貸方</th>
+            <th rowspan="2">摘要</th>
+          </tr>
+          <tr>
+            <th>勘定科目</th>
+            <th>金額</th>
+            <th>勘定科目</th>
+            <th>金額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>工具器具備品</td>
+            <td>120,000</td>
+            <td>現金</td>
+            <td>120,000</td>
+            <td>パソコン購入</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script> -->
+  </body>
+</html>
