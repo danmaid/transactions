@@ -15,8 +15,28 @@
         border-bottom: 1px solid;
       }
     </style>
+    <script type="module" src="/src/dm-upload-receipt-button.ts"></script>
   </head>
   <body>
+    <dm-upload-receipt-button></dm-upload-receipt-button>
+    <button id="post">POST</button>
+    <script>
+      document.getElementById('post').addEventListener('click', (ev) => {
+        fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ hoge: 'hoge' }),
+        })
+      })
+    </script>
+
+    <button id="get">GET</button>
+    <script>
+      document.getElementById('get').addEventListener('click', (ev) => {
+        fetch('/', { headers: { Accept: 'application/json' } })
+      })
+    </script>
+
     <div style="display: flex; align-items: baseline; justify-content: space-around">
       <label>start: <input type="date" /></label>
       <label>end:<input type="date" /></label>
@@ -27,6 +47,17 @@
         <label><input type="checkbox" />日</label>
       </fieldset>
     </div>
+
+    <div>GET /?date=true&price=true => Payment[]</div>
+    <div>GET /payments => Payment[]</div>
+
+    <div>
+      <button>upload receipt</button>
+      POST /receipts File (Content-Type: image/png etc...)
+    </div>
+
+    <div>未おこしレシートリスト GET /receipts?price=false</div>
+    <div>レシート文字起こし GET /{id} -> PUT /payments/{id} Payment -> PATCH /{id} Payment</div>
 
     <div style="display: flex; justify-content: space-around">
       <table>
