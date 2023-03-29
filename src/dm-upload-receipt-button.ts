@@ -20,7 +20,7 @@ export class DmUploadReceiptButton extends HTMLElement {
 
   onchange = () => {
     for (const file of this.file.files as unknown as File[]) {
-      fetch('/receipts', { method: 'POST', body: file })
+      fetch('/', { method: 'POST', body: file })
     }
   }
 }
