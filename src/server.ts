@@ -6,11 +6,13 @@ import { join } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { createReadStream } from 'node:fs'
 import { createInterface } from 'node:readline'
+import { EventEmitter, on } from 'node:events'
 
 const dir = './data'
 await mkdir(dir, { recursive: true })
 const events = join(dir, 'events.jsonl')
 await access(events).catch(() => appendFile(events, ''))
+const ee = new EventEmitter()
 
 const vite = await createViteServer({ server: { middlewareMode: true } })
 const app = express()
@@ -35,6 +37,7 @@ app.post('/', async (req, res) => {
 
   const meta = { ...req.headers, id }
   await appendFile(events, JSON.stringify(meta) + '\n', { encoding: 'utf-8' })
+  ee.emit('event', randomUUID(), meta)
 
   return res.status(201).json(id)
 })
@@ -44,9 +47,27 @@ app.get('/', async (req, res, next) => {
   const items = new Map()
   for await (const line of reader) {
     const item = JSON.parse(line)
-    items.set(item.id, { ...items.get(item.id), ...item })
+    const before = items.get(item.id)
+    items.delete(item.id)
+    items.set(item.id, { ...before, ...item })
   }
   return res.json(Array.from(items.values()))
+})
+app.get('/', async (req, res, next) => {
+  if (!req.accepts().includes('text/event-stream')) return next()
+  res.setHeader('Cache-Control', 'no-store')
+  res.setHeader('Content-Type', 'text/event-stream')
+  const ac = new AbortController()
+  res.once('close', () => ac.abort())
+  res.flushHeaders()
+  res.once('close', () => console.log('SSE closed.', req.ip))
+  console.log('SSE started.', req.ip)
+  try {
+    for await (const [id, data] of on(ee, 'event', { signal: ac.signal })) {
+      res.write(`data: ${JSON.stringify(data)}\n`)
+      res.write(`id: ${id}\n\n`)
+    }
+  } catch {}
 })
 app.get('/:id', async (req, res, next) => {
   const { id } = req.params
@@ -67,6 +88,14 @@ app.put('/:id', async (req, res) => {
   const { id } = req.params
   const meta = { ...req.body, id }
   await appendFile(events, JSON.stringify(meta) + '\n', { encoding: 'utf-8' })
+
+  const m = {}
+  for await (const line of createInterface(createReadStream(events, { encoding: 'utf-8' }))) {
+    const item = JSON.parse(line)
+    if (item.id !== id) continue
+    Object.assign(m, item)
+  }
+  ee.emit('event', randomUUID(), m)
   return res.sendStatus(200)
 })
 app.use(vite.middlewares)

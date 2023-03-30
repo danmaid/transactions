@@ -18,66 +18,43 @@
         max-width: 100px;
         max-height: 100px;
       }
+      table img {
+        max-height: 50px;
+      }
     </style>
     <script type="module" src="/src/dm-upload-receipt-button.ts"></script>
+    <script type="module" src="/src/dm-data-table.ts"></script>
   </head>
   <body>
     <dm-upload-receipt-button></dm-upload-receipt-button>
+    <table is="dm-data-table" columns="date, partner, item, price, method">
+      <caption>
+        Transactions
+      </caption>
+      <thead>
+        <th></th>
+        <th>日時</th>
+        <th>相手</th>
+        <th>品名</th>
+        <th>価格</th>
+        <th>支払方法</th>
+      </thead>
+      <tbody></tbody>
+    </table>
 
-    <div>
-      <button id="get">GET /receipts</button>
-      <div id="receipts"></div>
-      <script>
-        document.getElementById('get').addEventListener('click', async (ev) => {
-          const res = await fetch('/', { headers: { Accept: 'application/json' } })
-          const items = await res.json()
-          const receipts = document.getElementById('receipts')
-          receipts.innerHTML = ''
-          for (const item of items) {
-            const { 'content-type': type, id } = item
-            if (typeof type !== 'string' || !type.startsWith('image')) continue
-            const img = document.createElement('img')
-            img.src = id
-            img.onclick = (ev) => {
-              const form = document.forms.namedItem('payment')
-              form.elements.namedItem('id').value = item.id
-              form.elements.namedItem('date').value = item.date
-              form.elements.namedItem('partner').value = item.partner
-              form.elements.namedItem('item').value = item.item
-              form.elements.namedItem('price').value = item.price
-              form.elements.namedItem('method').value = item.method
-            }
-            receipts.append(img)
-          }
-        })
-      </script>
-    </div>
-
-    <div>
-      <form id="payment">
-        <label>ID<input id="id" /></label>
-        <label>日時<input name="date" /></label>
-        <label>相手<input name="partner" /></label>
-        <label>品名<input name="item" /></label>
-        <label>価格<input name="price" /></label>
-        <label>支払方法<input name="method" /></label>
-        <button id="submit">送信</button>
-      </form>
-      <script>
-        const form = document.forms.namedItem('payment')
-        console.log(form.elements)
-        console.log(JSON.stringify(form.elements))
-        form.onsubmit = (ev) => {
-          console.log(ev)
-          ev.preventDefault()
-          const inputs = Array.from(form.elements).filter((v) => v.name)
-          const values = Object.fromEntries(inputs.map((v) => [v.name, v.value]))
-          const id = form.elements.id.value
-          console.log(id, values)
-          fetch(id, { method: 'PUT', body: JSON.stringify(values), headers: { 'Content-Type': 'application/json' } })
-        }
-      </script>
-    </div>
+    <table is="dm-data-table" columns="date, income, expense, description">
+      <caption>
+        単式簿記
+      </caption>
+      <thead>
+        <th></th>
+        <th>日時</th>
+        <th>収入</th>
+        <th>支出</th>
+        <th>摘要</th>
+      </thead>
+      <tbody></tbody>
+    </table>
 
     <div style="display: flex; align-items: baseline; justify-content: space-around">
       <label>start: <input type="date" /></label>
